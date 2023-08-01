@@ -1,0 +1,217 @@
+<div class="carousel-container">
+  <div class="inner-carousel">
+    <div class="carousel-track">
+      {% for block in section.blocks %}
+        <div class="card-container">
+          <img class="card-image" src="{{ block.settings.card-image-url }}">
+          <div class="card-text text-white">
+            <h1 class="text-white">{{ block.settings.card-title }}</h1>
+            <p>{{ block.settings.card-description }}</p>
+            <a href="{{ block.settings.button-url }}" type="button">Go to occasion</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="nav">
+    <button class="btn-prev btn">prev</button>
+    <button class="btn-next btn">next</button>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Multi carousel",
+    "settings": [],
+    "templates": [
+      "index", "page", "product"
+    ],
+    "presets": [
+      {
+        "name": "Multi carousel",
+        "category": "Carousel"
+      }
+    ],
+    "blocks": [
+      {
+        "name": "Single Card in carousel",
+        "type": "card-carousel",
+        "settings": [
+          {
+            "id": "card-image-url",
+            "type": "url",
+            "label": "Image URL"
+          }, {
+            "id": "card-title",
+            "type": "text",
+            "label": "Card Name"
+          }, {
+            "id": "card-description",
+            "type": "text",
+            "label": "Card Description"
+          }, {
+            "id": "button-url",
+            "type": "url",
+            "label": "Button URL"
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}
+
+{% stylesheet %}
+  .carousel-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 5rem;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  .inner-carousel {
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: inline-flex;
+    height: 100%;
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .card-container {
+    width: 100%;
+    padding-bottom: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-shrink: 0; /* Prevent cards from shrinking when screen size is reduced */
+  }
+
+  .card-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: auto;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card-image {
+    width: 100%;
+    position: relative;
+    z-index: -1;
+  }
+
+  .text-white {
+    color: white;
+  }
+
+  @media(max-width: 767px) {
+    .card-container {
+      width: 100%;
+    }
+
+    .card-text {
+      top: 40%;
+    }
+
+    .card-image {
+      width: 100%;
+    }
+  }
+
+  .nav {
+    padding-top: 2.5rem;
+    display: flex;
+    gap: 10px;
+    width: 100px;
+    position: relative;
+  }
+
+  .nav button {
+    transform: translateY(-50%);
+    width: calc(45px - 2px); /* Subtract the border width from the desired width */
+    height: 45px;
+    border-radius: 50%;
+    outline: none;
+    border: 1px solid #000;
+    position: absolute;
+    top: 50%;
+  }
+
+  .nav .btn-prev {
+    display: none;
+    width: 45px;
+    cursor: pointer;
+
+  }
+
+  .nav .btn-prev.show {
+    display: block;
+  }
+
+  .nav .btn-next {
+    width: 45px;
+    right: 0;
+    cursor: pointer;
+
+  }
+
+  .nav .btn-next.hide {
+    display: none;
+  }
+{% endstylesheet  %}
+
+{%  javascript %}
+const carouselContainers = document.querySelectorAll('.carousel-container');
+
+carouselContainers.forEach(function(carouselContainer) {
+  const btnNext = carouselContainer.querySelector('.btn-next');
+  const btnPrev = carouselContainer.querySelector('.btn-prev');
+  const carouselTrack = carouselContainer.querySelector('.carousel-track');
+  const carouselItemCount = carouselContainer.querySelectorAll('.card-container').length;
+
+  let width = carouselContainer.offsetWidth;
+  let index = 0;
+
+  window.addEventListener('resize', function() {
+    width = carouselContainer.offsetWidth;
+  });
+
+  btnNext.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    btnPrev.classList.add('show');
+    index = index + 1;
+    carouselTrack.style.transform = 'translateX(' + index * -width + 'px)';
+
+    if (index === carouselItemCount - 1) {
+      btnNext.classList.add('hide');
+    }
+  });
+
+  btnPrev.addEventListener('click', function(e) {
+    e.preventDefault();
+
+    btnNext.classList.remove('hide');
+    if (index === 1) {
+      btnPrev.classList.remove('show');
+    }
+
+    index = index - 1;
+    carouselTrack.style.transform = 'translateX(' + index * -width + 'px)';
+  });
+});
+
+{% endjavascript %}
